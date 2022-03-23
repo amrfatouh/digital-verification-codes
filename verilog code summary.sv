@@ -54,6 +54,8 @@ int q[$] = {3,4}; // queue
 $display("a");
 $display("a", "b");
 $display("%d", a); // decimal
+$display("%0d", a); // decimal - take space as small as possible (take space of 0 char or more)
+$display("%5d", a); // decimal - take space of 5 chars or more
 $displayd(a); // decimal
 $display("%b", b); //binary
 $displayb(b); //binary
@@ -61,6 +63,7 @@ $write("a"); // write to buffer
 $display; // display what is in buffer and insert a new line after it in the console
 $display("%s", "a"); //string
 $display("a",,"b"); // "a b"  // space
+$display("%t", $time); // time
 
 // other directives
 // ================
@@ -179,6 +182,39 @@ q.min; // returns an queue containing the min element
 q.unique; // returns an queue containing same queue elements with no duplicates
 // does all array function are valid for queues?
 
+// casting
+// =======
+int i = 10.0 - 0.6; // 9 // implicit casting (rounding - not flooring)
+int i = 10.0 - 0.4; // 10 // implicit casting (rounding)
+int i = int'(10.0 - 0.6); // 9 // optional casting
+int i = {>>{8'hff, 8'hee, 8'hdd, 8'hcc}}; // 0xffeeddcc // pack
+int i = {<<8{8'hff, 8'hee, 8'hdd, 8'hcc}}; // 0xccddeeff // reverse bits and pack - 8 bits
+int i = {<<16{8'hff, 8'hee, 8'hdd, 8'hcc}}; // 0xddccffee // reverse bits and pack - 16 bits
+int i = {<<24{8'hff, 8'hee, 8'hdd, 8'hcc}}; // 0xeeddccff // reverse bits and pack - 24 bits
+bit [7:0] b = {<<{8'b1011_0000}}; // 0000_1101  // reverse bits
+
+// expression width
+// ================
+$displayb(1'b1 + 1'b1); // 0
+bit [7:0] bits = 1'b1 + 1'b1; // 2  // summation is done correctly
+real r = 3 / 2; // 1  // division is done wrong, though
+$display(1 + 2.5); // 3.5  // automatic casting to real
+$display(3 / 2); // 1  // no casting
+$display(3 / 2.0); // 1  // automatic casting to real
+$display(1'b1 + 1'b1 + 2'b0); // 2  // automatic casting to 2 bits (same as automatic casting to real when adding int to real)
+$display(2'(1'b1) + 1'b1); // 2  // casting into 2 bits
+$displayb(4'(1'b1) + 1'b1); // 0010  // casting into 4 bits
+
+// strings
+// =======
+s.getc(0); // get first char
+s.tolower(); // lower case
+s.toupper(); // upper case
+s.putc(1, "a"); // replace char at index 1 with "a"
+s = {s, "aaa"}; // concatinate s with "aaa"
+s.substr(2, 5); // return a new string with characters from char at index 2 to char at index 5
+string s = $psprintf("%b", 4'b1010); // return a string formatted the same way as $display directive
+
 // flow control
 // ============
 initial begin end
@@ -224,6 +260,23 @@ $fscanf(file, "%d %s", i, s); // read decimal - space - string respectively from
 
 $fclose(file); // close file
 
+// enums
+// =====
+typedef enum { INIT, DECODE, IDLE } fsmstate_e; // defining enum
+fsmstate_e nstate = INIT; // declaring an enum variable 
+$display(nstate); // 0
+$display(nstate.name()); // INIT
+nstate.first; // INIT  // get first enum
+nstate.next; // DECODE  // get next enum
+
+typedef enum {RED, BLUE = 2, GREEN} color_e;
+color_e color = BLUE;
+$display(color); // 2
+$display(color.name()); // BLUE
+color = color.next;
+$display(color); // 3
+$display(color.name()); // GREEN
+
 // struct
 // ======
 typedef struct { // defining a struct
@@ -233,9 +286,29 @@ typedef struct { // defining a struct
 } Packet; 
 
 Packet p = '{100, 2, 365}; // assigning to a struct
+p.addr; // accessing struct fields
 
+typedef struct {bit [7:0] r, g, b;} pixels_s; // each instance take 3 words of memory
+typedef struct packed {bit [7:0] r, g, b;} pixels_s; // each instance take 1 word of memory
+
+// union
+// =====
+typedef union { int i; real f; } num_u;
+num_u un = 25.432; //'{i: -1924545349, f: 25.432}
+
+// creating new types
+// ==================
+typedef reg[7:0] opreg_t; // define 8-bit reg type
+typedef bit[31:0] uint_t; // define unsigned int through 32 bits
+typedef int unsigned uint1_t; // define short for unsigned int
+typedef int fixed_array5[5]; // define a data type of array of 5 ints
+
+// functions
+// =========
 
 function void f(int x); endfunction
+
+task t(int x); endtask // similar to void function
 
 // snippet written in test bench for graphing
 initial begin 
