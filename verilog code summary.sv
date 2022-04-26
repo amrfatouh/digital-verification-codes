@@ -9,22 +9,25 @@ parameter CYCLE = 20;
 input param1, param2;
 output param3, param4;
 
-wire param1; // all input ports are wires
-reg clk;
-logic logic1;
+wire param1; 		// Not Data Type only connection 
+					// Can't save value 
+					// give value by assign keyword
 
-bit b;
-bit [31:0] b32;
+					/*       2-value Data Types       */
+bit b;				// Integer | 1-bit 		  | unsigned
+bit [x:0] bx;		// Integer | user defined | unsigned
+byte b8;			// Integer | 8-bit 		  | signed
+shortint s;			// Integer | 16-bit 	  | signed
+int i;				// Integer | 32-bit 	  | signed
+int unsigned ui;	// Integer | 32-bit		  | signed	
+longint l;			// Integer | 64-bit		  | unsigned
+real r;				// floating| ~-bit 		  | unsigned
 
-byte b8;
-shortint s;
-int i;
-int unsigned ui;
-loginint l;
-
-integer i4;
-time t;
-real r;
+					/*	   4-value Data Types    	*/
+logic logic1;		// Integer | user defined | unsigned
+reg Reg;			// Integer | user defined | unsigned	
+integer i;			// Integer | 32-bit 	  | signed
+time t;				// Integer | 64-bit 	  | unsigned
 
 
 // declaring modules
@@ -36,17 +39,18 @@ my_module m1(out1, out2, in1, in2, in3);
 // ==================
 int lo_hi[0:15]; // array of size 16
 int c_style[16];
-int a[0:7][0:3]; // 8x4 array
-int a[8][4];
-int arr[4] = '{1,2,3,4};
+int a[0:7][0:3]; // 8x4 array | verbose declaration
+int a[8][4];	 // compact declaration
+int arr[4] = '{1,2,3,4}; 
 int arr[4] = '{1,2,3}; // WRONG - all must be initialized
 bit [31:0] src; // packed
 bit src[5]; // unpacked
-bit [31:0] arr[5];
+bit [31:0] arr[5]; 
 bit [1:0] arr = 1; // arr[0] = 1  // highest index (1) is the MSB
 bit [0:1] arr = 1; // arr[1] = 1  // highest index (1) is the LSB
 int dyn[]; // dynamic array
 bit [39:0] assoc[int]; // associative array; key is int, value is 40 bits
+bit [39:0] assoc[*]; // associative array; key is anything, value is 40 bits
 int q[$] = {3,4}; // queue
 
 // display directive
@@ -71,7 +75,7 @@ $size(arr);
 
 // assignment
 // ==========
-assign logic1 = ~param1 // continuous
+assign logic1 = ~param1 // continuous | to wire
 a = 1'b0; // blocking
 a <= 1'b0; // non blocking
 a = 1'bx; // 1 don't care bit 
